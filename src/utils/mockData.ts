@@ -20,6 +20,7 @@ export const generateMockProducts = (): Product[] => {
       type: 'herb',
       price: Math.floor(Math.random() * (5000 - 1000) + 1000),
       stock: Math.floor(Math.random() * 100) + 50,
+      pricePerGram: Math.floor(Math.random() * (1000 - 200) + 200),
     });
   });
 
@@ -48,18 +49,22 @@ export const generateMockSales = (products: Product[]): Sale[] => {
     const quantity = Math.floor(Math.random() * 10) + 1;
     const date = new Date();
     date.setDate(date.getDate() - Math.floor(Math.random() * 30));
+    const saleType = product.type === 'herb' ? (Math.random() > 0.5 ? 'grams' : 'package') : 'package';
 
     sales.push({
       id: `sale-${i + 1}`,
       date: date.toISOString().split('T')[0],
       productId: product.id,
-      packageColor: packageColors[Math.floor(Math.random() * packageColors.length)],
-      packageSize: packageSizes[Math.floor(Math.random() * packageSizes.length)],
+      saleType,
+      packageColor: saleType === 'package' ? packageColors[Math.floor(Math.random() * packageColors.length)] : undefined,
+      packageSize: saleType === 'package' ? packageSizes[Math.floor(Math.random() * packageSizes.length)] : undefined,
+      grams: saleType === 'grams' ? quantity : undefined,
       quantity,
-      unitPrice: product.price,
-      totalAmount: quantity * product.price,
+      unitPrice: saleType === 'grams' ? (product.pricePerGram || product.price) : product.price,
+      totalAmount: quantity * (saleType === 'grams' ? (product.pricePerGram || product.price) : product.price),
     });
   }
 
   return sales.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 };
+

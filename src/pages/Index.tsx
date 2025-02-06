@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Loader2, Plus, FileDown } from 'lucide-react';
+import { Loader2, Plus, FileDown, Scale } from 'lucide-react';
 import { generateMockProducts, generateMockSales } from '../utils/mockData';
 import { Product, Sale, SaleWithProduct } from '../types/sales';
 import SalesTable from '../components/SalesTable';
@@ -35,7 +35,7 @@ const Index = () => {
     loadData();
   }, []);
 
-  const handleSaleSubmit = (formData: Omit<Sale, 'id' | 'totalAmount'>) => {
+  const handleSaleSubmit = (formData: Omit<Sale, 'id' | 'totalAmount' | 'saleType'> & { saleType: 'package' | 'grams' }) => {
     const product = products.find(p => p.id === formData.productId)!;
     const newSale: SaleWithProduct = {
       ...formData,
@@ -85,8 +85,10 @@ const Index = () => {
     const headers = [
       'Дата',
       'Товар',
+      'Тип продажи',
       'Цвет упаковки',
       'Размер упаковки',
+      'Граммы',
       'Количество',
       'Цена за единицу',
       'Общая сумма',
@@ -96,8 +98,10 @@ const Index = () => {
     const rows = sales.map(sale => [
       sale.date,
       sale.product.name,
-      sale.packageColor === 'red' ? 'Красный' : sale.packageColor === 'green' ? 'Зеленый' : 'Желтый',
-      sale.packageSize === 'large' ? 'Большой' : 'Маленький',
+      sale.saleType === 'grams' ? 'Граммовка' : 'Упаковка',
+      sale.packageColor === 'red' ? 'Красный' : sale.packageColor === 'green' ? 'Зеленый' : sale.packageColor === 'yellow' ? 'Желтый' : '',
+      sale.packageSize === 'large' ? 'Большой' : sale.packageSize === 'small' ? 'Маленький' : '',
+      sale.grams || '',
       sale.quantity,
       sale.unitPrice,
       sale.totalAmount,
@@ -143,6 +147,25 @@ const Index = () => {
             </DialogContent>
           </Dialog>
 
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="secondary">
+                <Scale className="w-4 h-4 mr-2" />
+                Добавить позицию по граммовкам
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Добавить позицию по граммовкам</DialogTitle>
+              </DialogHeader>
+              <SaleForm
+                products={products.filter(p => p.type === 'herb')}
+                onSubmit={handleSaleSubmit}
+                saleType="grams"
+              />
+            </DialogContent>
+          </Dialog>
+
           <Button variant="outline" onClick={handleExport}>
             <FileDown className="w-4 h-4 mr-2" />
             Экспорт
@@ -181,10 +204,13 @@ const Index = () => {
                 productId: saleToEdit.productId,
                 packageColor: saleToEdit.packageColor,
                 packageSize: saleToEdit.packageSize,
+                grams: saleToEdit.grams,
                 quantity: saleToEdit.quantity,
                 unitPrice: saleToEdit.unitPrice,
                 date: saleToEdit.date,
+                saleType: saleToEdit.saleType,
               }}
+              saleType={saleToEdit.saleType}
             />
           )}
         </DialogContent>
@@ -200,3 +226,4 @@ const Index = () => {
 };
 
 export default Index;
+

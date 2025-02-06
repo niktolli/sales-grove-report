@@ -56,7 +56,8 @@ const SalesTable: React.FC<SalesTableProps> = ({ sales, onEdit, onDelete }) => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Название</TableHead>
-                  <TableHead>Упаковка</TableHead>
+                  <TableHead>Тип продажи</TableHead>
+                  <TableHead>Упаковка / Граммы</TableHead>
                   <TableHead className="text-right">Количество</TableHead>
                   <TableHead className="text-right">Цена</TableHead>
                   <TableHead className="text-right">Сумма</TableHead>
@@ -69,24 +70,32 @@ const SalesTable: React.FC<SalesTableProps> = ({ sales, onEdit, onDelete }) => {
                   <TableRow key={sale.id}>
                     <TableCell className="font-medium">{sale.product.name}</TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-2">
-                        <div
-                          className={`w-3 h-3 rounded-full ${
-                            sale.packageColor === 'red'
-                              ? 'bg-red-500'
-                              : sale.packageColor === 'green'
-                              ? 'bg-green-500'
-                              : 'bg-yellow-500'
-                          }`}
-                        />
-                        <span className="capitalize">
-                          {sale.packageSize === 'large' ? 'Большой' : 'Маленький'}
-                        </span>
-                      </div>
+                      {sale.saleType === 'grams' ? 'Граммовка' : 'Упаковка'}
+                    </TableCell>
+                    <TableCell>
+                      {sale.saleType === 'grams' ? (
+                        <span>{sale.grams} г</span>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <div
+                            className={`w-3 h-3 rounded-full ${
+                              sale.packageColor === 'red'
+                                ? 'bg-red-500'
+                                : sale.packageColor === 'green'
+                                ? 'bg-green-500'
+                                : 'bg-yellow-500'
+                            }`}
+                          />
+                          <span className="capitalize">
+                            {sale.packageSize === 'large' ? 'Большой' : 'Маленький'}
+                          </span>
+                        </div>
+                      )}
                     </TableCell>
                     <TableCell className="text-right">{sale.quantity}</TableCell>
                     <TableCell className="text-right">
                       {sale.unitPrice.toLocaleString('ru-RU')} ₽
+                      {sale.saleType === 'grams' && ' /г'}
                     </TableCell>
                     <TableCell className="text-right">
                       {sale.totalAmount.toLocaleString('ru-RU')} ₽
@@ -122,3 +131,4 @@ const SalesTable: React.FC<SalesTableProps> = ({ sales, onEdit, onDelete }) => {
 };
 
 export default SalesTable;
+
