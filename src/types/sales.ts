@@ -1,4 +1,3 @@
-
 export type PackageColor = 'red' | 'green' | 'yellow';
 export type PackageSize = 'large' | 'small';
 export type SaleType = 'package' | 'grams';
@@ -8,7 +7,6 @@ export interface Product {
   name: string;
   type: 'herb' | 'other';
   price: number;
-  stock: number;
   pricePerGram?: number;
 }
 
@@ -28,5 +26,4 @@ export interface Sale {
 
 export interface SaleWithProduct extends Sale {
   product: Product;
-}
-
+} 

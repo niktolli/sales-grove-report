@@ -1,4 +1,3 @@
-
 import { Product, Sale, PackageColor, PackageSize } from '../types/sales';
 
 const herbNames = [
@@ -19,7 +18,6 @@ export const generateMockProducts = (): Product[] => {
       name,
       type: 'herb',
       price: Math.floor(Math.random() * (5000 - 1000) + 1000),
-      stock: Math.floor(Math.random() * 100) + 50,
       pricePerGram: Math.floor(Math.random() * (1000 - 200) + 200),
     });
   });
@@ -31,7 +29,6 @@ export const generateMockProducts = (): Product[] => {
       name: `Product ${i + 1}`,
       type: 'other',
       price: Math.floor(Math.random() * (3000 - 500) + 500),
-      stock: Math.floor(Math.random() * 100) + 50,
     });
   }
 
@@ -42,7 +39,7 @@ export const generateMockSales = (products: Product[]): Sale[] => {
   const sales: Sale[] = [];
   const packageColors: PackageColor[] = ['red', 'green', 'yellow'];
   const packageSizes: PackageSize[] = ['large', 'small'];
-
+  
   // Generate random sales for the last 30 days
   for (let i = 0; i < 50; i++) {
     const product = products[Math.floor(Math.random() * products.length)];
@@ -68,3 +65,6 @@ export const generateMockSales = (products: Product[]): Sale[] => {
   return sales.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 };
 
+export const calculateTotalRevenue = (sales: Sale[]): number => {
+  return sales.reduce((sum, sale) => sum + sale.totalAmount, 0);
+}; 

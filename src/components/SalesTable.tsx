@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
@@ -48,7 +47,7 @@ const SalesTable: React.FC<SalesTableProps> = ({ sales, onEdit, onDelete }) => {
                 {format(new Date(date), 'd MMMM yyyy', { locale: ru })}
               </h3>
               <p className="text-muted-foreground">
-                Итого за день: {dailyTotal.toLocaleString('ru-RU')} ₽
+                Итого за день: {dailyTotal.toLocaleString('ru-RU')} ฿
               </p>
             </div>
 
@@ -61,7 +60,6 @@ const SalesTable: React.FC<SalesTableProps> = ({ sales, onEdit, onDelete }) => {
                   <TableHead className="text-right">Количество</TableHead>
                   <TableHead className="text-right">Цена</TableHead>
                   <TableHead className="text-right">Сумма</TableHead>
-                  <TableHead className="text-right">Остаток</TableHead>
                   <TableHead className="text-center">Действия</TableHead>
                 </TableRow>
               </TableHeader>
@@ -94,14 +92,11 @@ const SalesTable: React.FC<SalesTableProps> = ({ sales, onEdit, onDelete }) => {
                     </TableCell>
                     <TableCell className="text-right">{sale.quantity}</TableCell>
                     <TableCell className="text-right">
-                      {sale.unitPrice.toLocaleString('ru-RU')} ₽
+                      {sale.unitPrice.toLocaleString('ru-RU')} ฿
                       {sale.saleType === 'grams' && ' /г'}
                     </TableCell>
                     <TableCell className="text-right">
-                      {sale.totalAmount.toLocaleString('ru-RU')} ₽
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {sale.product.stock}
+                      {sale.totalAmount.toLocaleString('ru-RU')} ฿
                     </TableCell>
                     <TableCell>
                       <div className="flex justify-center gap-2">
@@ -130,5 +125,4 @@ const SalesTable: React.FC<SalesTableProps> = ({ sales, onEdit, onDelete }) => {
   );
 };
 
-export default SalesTable;
-
+export default SalesTable; 

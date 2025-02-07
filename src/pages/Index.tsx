@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Loader2, Plus, FileDown, Scale } from 'lucide-react';
-import { generateMockProducts, generateMockSales } from '../utils/mockData';
-import { Product, Sale, SaleWithProduct } from '../types/sales';
+import { generateMockProducts, generateMockSales, calculateTotalRevenue } from '@/utils/mockData';
+import { Product, Sale, SaleWithProduct } from '@/types/sales';
 import SalesTable from '../components/SalesTable';
 import SaleForm from '../components/SaleForm';
 import { useToast } from '@/components/ui/use-toast';
@@ -15,13 +14,14 @@ const Index = () => {
   const [loading, setLoading] = useState(true);
   const [saleToEdit, setSaleToEdit] = useState<SaleWithProduct | null>(null);
   const { toast } = useToast();
+  const [totalRevenue, setTotalRevenue] = useState(0);
 
   useEffect(() => {
     const loadData = () => {
       const mockProducts = generateMockProducts();
       const mockSales = generateMockSales(mockProducts);
       
-      // Convert sales to SaleWithProduct
+      // Convert sales to SaleWithProduct by linking each sale to its product details
       const salesWithProducts = mockSales.map(sale => ({
         ...sale,
         product: mockProducts.find(p => p.id === sale.productId)!
@@ -29,6 +29,7 @@ const Index = () => {
 
       setProducts(mockProducts);
       setSales(salesWithProducts);
+      setTotalRevenue(calculateTotalRevenue(salesWithProducts));
       setLoading(false);
     };
 
@@ -44,14 +45,11 @@ const Index = () => {
       product
     };
 
-    setSales(prev => [newSale, ...prev]);
-    setProducts(prev =>
-      prev.map(p =>
-        p.id === product.id
-          ? { ...p, stock: p.stock - formData.quantity }
-          : p
-      )
-    );
+    setSales(prev => {
+      const newSales = [newSale, ...prev];
+      setTotalRevenue(calculateTotalRevenue(newSales));
+      return newSales;
+    });
 
     toast({
       title: "Продажа добавлена",
@@ -66,14 +64,11 @@ const Index = () => {
   const handleSaleDelete = (saleId: string) => {
     const saleToDelete = sales.find(s => s.id === saleId)!;
     
-    setSales(prev => prev.filter(s => s.id !== saleId));
-    setProducts(prev =>
-      prev.map(p =>
-        p.id === saleToDelete.productId
-          ? { ...p, stock: p.stock + saleToDelete.quantity }
-          : p
-      )
-    );
+    setSales(prev => {
+      const newSales = prev.filter(s => s.id !== saleId);
+      setTotalRevenue(calculateTotalRevenue(newSales));
+      return newSales;
+    });
 
     toast({
       title: "Продажа удалена",
@@ -91,8 +86,7 @@ const Index = () => {
       'Граммы',
       'Количество',
       'Цена за единицу',
-      'Общая сумма',
-      'Остаток'
+      'Общая сумма'
     ].join(',');
 
     const rows = sales.map(sale => [
@@ -105,7 +99,6 @@ const Index = () => {
       sale.quantity,
       sale.unitPrice,
       sale.totalAmount,
-      sale.product.stock
     ].join(','));
 
     const csv = [headers, ...rows].join('\n');
@@ -126,6 +119,14 @@ const Index = () => {
 
   return (
     <div className="container mx-auto py-8 px-4 space-y-8">
+      {/* Total Revenue Card */}
+      <div className="flex flex-col items-center justify-center bg-gray-100 p-6 rounded-xl">
+        <div className="bg-white shadow-lg rounded-2xl p-6 max-w-md w-full text-center">
+          <h2 className="text-2xl font-bold text-gray-800">Общая выручка</h2>
+          <p className="text-4xl font-semibold text-green-600 mt-2">฿{totalRevenue.toLocaleString()}</p>
+        </div>
+      </div>
+      
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Отчет по продажам</h1>
         <div className="flex gap-4">
@@ -188,11 +189,13 @@ const Index = () => {
                   totalAmount: formData.quantity * formData.unitPrice,
                 };
 
-                setSales(prev =>
-                  prev.map(s =>
+                setSales(prev => {
+                  const newSales = prev.map(s =>
                     s.id === saleToEdit.id ? updatedSale : s
-                  )
-                );
+                  );
+                  setTotalRevenue(calculateTotalRevenue(newSales));
+                  return newSales;
+                });
 
                 setSaleToEdit(null);
                 toast({
@@ -225,5 +228,4 @@ const Index = () => {
   );
 };
 
-export default Index;
-
+export default Index; 
